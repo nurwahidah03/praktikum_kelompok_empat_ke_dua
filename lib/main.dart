@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:limit_kuota/src/features/monitoring/network_page.dart';
 import 'package:limit_kuota/src/screen/splash_screen.dart';
+import 'src/core/services/notif_service.dart';
 
 void main() {
-  // Jalankan MyApp, bukan langsung Network
+  // Jalankan MyApp, bukan langsung Network 
   runApp(const MyApp()); 
 }
 
