@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../core/services/quota_service.dart';
-import '../widgets/quota_card.dart';
+import 'package:limit_kuota/src/core/services/quota_service.dart';
+import 'package:limit_kuota/src/core/widgets/quota_card.dart';
+
 
 class QuotaPage extends StatefulWidget {
+  const QuotaPage({super.key});
+
   @override
   State<QuotaPage> createState() => _QuotaPageState();
 }
@@ -45,7 +48,7 @@ class _QuotaPageState extends State<QuotaPage> {
     await service.addUsage(value);
     await loadQuota();
 
-    if (usedQuota >= maxQuota * 0.9) {
+    if (maxQuota > 0 && usedQuota >= maxQuota * 0.9) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("⚠️ Kuota hampir habis!")),
       );

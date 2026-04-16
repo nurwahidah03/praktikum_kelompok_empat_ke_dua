@@ -4,7 +4,11 @@ class QuotaCard extends StatelessWidget {
   final int used;
   final int max;
 
-  const QuotaCard({required this.used, required this.max});
+  const QuotaCard({
+    super.key,
+    required this.used,
+    required this.max,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,11 +16,11 @@ class QuotaCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Text("Kuota: $used / $max MB"),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             LinearProgressIndicator(value: percent),
           ],
         ),
