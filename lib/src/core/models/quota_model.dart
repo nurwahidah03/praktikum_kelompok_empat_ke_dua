@@ -9,6 +9,20 @@ class QuotaModel {
     required this.usedQuota,
   });
 
+  // 🔥 SISA KUOTA
+  int get remaining => maxQuota - usedQuota;
+
+  // 🔥 PERSENTASE (untuk progress bar & grafik)
+  double get percent =>
+      maxQuota == 0 ? 0 : usedQuota / maxQuota;
+
+  // 🔥 STATUS (buat notif / UI)
+  String get status {
+    if (remaining <= 1) return "Habis";
+    if (percent > 0.8) return "Hampir Habis";
+    return "Aman";
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

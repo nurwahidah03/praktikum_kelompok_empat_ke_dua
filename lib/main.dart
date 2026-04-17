@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:limit_kuota/src/features/monitoring/network_page.dart';
+import 'package:provider/provider.dart';
 import 'package:limit_kuota/src/screen/splash_screen.dart';
-import 'src/core/services/notif_service.dart';
+import 'package:limit_kuota/src/core/theme/app_theme.dart';
+import 'package:limit_kuota/src/core/theme/theme_provider.dart';
 
 
 void main() {
-  // Jalankan MyApp, bukan langsung Network 
-  runApp(const MyApp()); 
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,9 +19,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false, // Opsional: hilangkan banner debug
-      home: SplashScreen(), // Network sekarang punya akses ke Directionality dari MaterialApp
+    return Consumer<ThemeProvider>(
+  builder: (context, themeProvider, child) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeProvider.themeMode,
+      home: const SplashScreen(),
     );
+  },
+);  
   }
 }

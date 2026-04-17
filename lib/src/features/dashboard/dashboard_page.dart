@@ -1,88 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:limit_kuota/src/screen/grafik_batang_page.dart';
 import '../monitoring/network_page.dart';
 import '../monitoring/history_page.dart';
+import 'package:provider/provider.dart';
+import 'package:limit_kuota/src/screen/grafik_batang_page.dart';
+import 'package:limit_kuota/src/features/monitoring/pages/quota_page.dart';
+import 'package:limit_kuota/src/core/theme/theme_provider.dart';
+import 'package:limit_kuota/src/core/services/notif_service.dart';
+import 'package:limit_kuota/src/core/services/quota_service.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
 
-  Widget menuCard({
-    required BuildContext context,
-    required String title,
-    required IconData icon,
-    required Widget page,
-    required Color color,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => page));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.8), color],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 40, color: Colors.white),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
-  Widget infoCard(String title, String value) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 5,
-              color: Colors.black12,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 5),
-            Text(title),
-          ],
-        ),
-      ),
-    );
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() async {
+      final quota = await QuotaService().getQuota();
+      if (quota != null && quota.remaining < 2) {
+        NotifService.showWarning(context, "Kuota kamu hampir habis!");
+      }
+    });
   }
 
   @override
@@ -105,10 +48,10 @@ class DashboardPage extends StatelessWidget {
                   bottomRight: Radius.circular(25),
                 ),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Dashboard",
                     style: TextStyle(
                       color: Colors.white,
@@ -116,8 +59,19 @@ class DashboardPage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 5),
-                  Text(
+                  IconButton(
+                    icon: Icon(
+                      context.watch<ThemeProvider>().isDark
+                          ? Icons.dark_mode
+                          : Icons.light_mode,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      context.read<ThemeProvider>().toggleTheme();
+                    },
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
                     "Pantau penggunaan kuota kamu",
                     style: TextStyle(color: Colors.white70),
                   ),
@@ -165,6 +119,20 @@ class DashboardPage extends StatelessWidget {
                       page: const HistoryPage(),
                       color: Colors.orange,
                     ),
+                    menuCard(
+                      context: context,
+                      title: "Grafik",
+                      icon: Icons.bar_chart,
+                      page: GrafikBatangPage(),
+                      color: Colors.purple,
+                    ),
+                    menuCard(
+                      context: context,
+                      title: "Kuota",
+                      icon: Icons.data_usage,
+                      page: const QuotaPage(),
+                      color: Colors.green,
+                    ),
                   ],
                 ),
               ),
@@ -174,4 +142,79 @@ class DashboardPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget menuCard({
+  required BuildContext context,
+  required String title,
+  required IconData icon,
+  required Widget page,
+  required Color color,
+}) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    },
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.8), color],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 40, color: Colors.white),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget infoCard(String title, String value) {
+  return Expanded(
+    child: Container(
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(blurRadius: 5, color: Colors.black12, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 5),
+          Text(title),
+        ],
+      ),
+    ),
+  );
 }
